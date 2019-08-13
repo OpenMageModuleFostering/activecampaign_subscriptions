@@ -25,8 +25,6 @@ class ActiveCampaign_Subscriptions_Block_Adminhtml_Subscriptions_Edit_Tab_Form e
 		$list_ids = array();
 		$form_id = 0;
 
-//$this->dbg($connection_data);
-
 		foreach ($connection_data as $connection) {
 			// find first one that is enabled
 			$api_url = $connection["api_url"];
@@ -40,7 +38,8 @@ class ActiveCampaign_Subscriptions_Block_Adminhtml_Subscriptions_Edit_Tab_Form e
 				foreach ($list_values as $acct_listid) {
 					// IE: mthommes6.activehosted.com-13
 					$acct_listid = explode("-", $acct_listid);
-					$list_ids[] = (int)$acct_listid[1];
+					end($acct_listid); // go to the last item, which should be the list ID
+					$list_ids[] = (int)current($acct_listid);
 				}
 			}
 

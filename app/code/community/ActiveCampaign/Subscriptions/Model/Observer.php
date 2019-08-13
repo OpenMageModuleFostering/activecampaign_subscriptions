@@ -56,7 +56,8 @@ protected function file_append($content) {
 					foreach ($list_values as $acct_listid) {
 						// IE: mthommes6.activehosted.com-13
 						$acct_listid = explode("-", $acct_listid);
-						$list_ids[] = (int)$acct_listid[1];
+						end($acct_listid); // go to the last item, which should be the list ID
+						$list_ids[] = (int)current($acct_listid);
 					}
 				}
 
@@ -174,7 +175,7 @@ protected function file_append($content) {
 					// add lists
 					foreach ($connection["list_ids"] as $list_id) {
 						$subscriber["p[{$list_id}]"] = $list_id;
-						$subscriber["status[{$list_id}]"] = 1;
+						$subscriber["status[{$list_id}]"] = $list_status;
 					}
 
 					$subscriber["form"] = $connection["form_id"];
