@@ -1,5 +1,7 @@
 <?php
 
+require_once(dirname(__FILE__) . "/exceptions/RequestException.php");
+
 class AC_Connector {
 
 	public $url;
@@ -26,21 +28,28 @@ class AC_Connector {
 		$this->api_key = $api_key;
 	}
 
+	/**
+	 * @return  boolean  Whether or not the API credentials are valid.
+	 *
+	 * Tests the API URL and key using the user_me API method.
+	 */
 	public function credentials_test() {
 		$test_url = "{$this->url}&api_action=user_me&api_output={$this->output}";
 		$r = $this->curl($test_url);
 		if (is_object($r) && (int)$r->result_code) {
 			// successful
 			$r = true;
-		}
-		else {
-			// failed
+		} else {
+			// failed - log it
+			$this->curl_response_error = $r;
 			$r = false;
 		}
 		return $r;
 	}
 
-	// debug function (nicely outputs variables)
+	/**
+	 * Standard debug function (nicely outputs variables).
+	 */
 	public function dbg($var, $continue = 0, $element = "pre", $extra = "") {
 	  echo "<" . $element . ">";
 	  echo "Vartype: " . gettype($var) . "\n";
@@ -55,6 +64,13 @@ class AC_Connector {
 		if (!$continue) exit();
 	}
 
+	/**
+	 * @param  string  url            The API URL with the relevant method params.
+	 * @param  array   params_data    The GET or POST parameters (keys and values).
+	 * @param  string  verb           The HTTP verb (GET, POST, DELETE, etc).
+	 * @param  string  custom_method  Any custom method that gets handled differently (such as how we process the response).
+	 * @return object                 The response object from the curl request.
+	 */
 	public function curl($url, $params_data = array(), $verb = "", $custom_method = "") {
 		if ($this->version == 1) {
 			// find the method from the URL.
@@ -145,14 +161,14 @@ class AC_Connector {
 						$data .= "{$key}=" . urlencode($value) . "&";
 					}
 				}
+				$data = rtrim($data, "& ");
 			}
 			else {
-				// not an array - perhaps serialized or JSON string?
-				// just pass it as data
-				$data = "data={$params_data}";
+				// Pass it as an array into the curl request.
+				// This avoids any issue where the transfer might get chunked or broken up due to a large post string/body.
+				$data = array("data" => $params_data);
 			}
 
-			$data = rtrim($data, "& ");
 			curl_setopt($request, CURLOPT_HTTPHEADER, array("Expect:"));
 			$debug_str1 .= "curl_setopt(\$ch, CURLOPT_HTTPHEADER, array(\"Expect:\"));\n";
 			if ($this->debug) {
@@ -165,16 +181,22 @@ class AC_Connector {
 		}
 		curl_setopt($request, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($request, CURLOPT_SSL_VERIFYHOST, 0);
-		curl_setopt($request, CURLOPT_FOLLOWLOCATION, true);
 		$debug_str1 .= "curl_setopt(\$ch, CURLOPT_SSL_VERIFYPEER, false);\n";
 		$debug_str1 .= "curl_setopt(\$ch, CURLOPT_SSL_VERIFYHOST, 0);\n";
-		$debug_str1 .= "curl_setopt(\$ch, CURLOPT_FOLLOWLOCATION, true);\n";
 		$response = curl_exec($request);
+		$curl_error = curl_error($request);
+		if (!$response && $curl_error) {
+			return $curl_error;
+		}
 		$debug_str1 .= "curl_exec(\$ch);\n";
 		if ($this->debug) {
 			$this->dbg($response, 1, "pre", "Description: Raw response");
 		}
 		$http_code = curl_getinfo($request, CURLINFO_HTTP_CODE);
+		if (!preg_match("/^[2-3][0-9]{2}/", $http_code)) {
+			// If not 200 or 300 range HTTP code, return custom error.
+			return "HTTP code $http_code returned";
+		}
 		$debug_str1 .= "\$http_code = curl_getinfo(\$ch, CURLINFO_HTTP_CODE);\n";
 		if ($this->debug) {
 			$this->dbg($http_code, 1, "pre", "Description: Response HTTP code");
@@ -190,19 +212,20 @@ class AC_Connector {
 		}
 		if ( !is_object($object) || (!isset($object->result_code) && !isset($object->succeeded) && !isset($object->success)) ) {
 			// add methods that only return a string
-			$string_responses = array("tracking_event_remove", "contact_list", "form_html", "tracking_site_status", "tracking_event_status", "tracking_whitelist", "tracking_log", "tracking_site_list", "tracking_event_list");
+			$string_responses = array("tags_list", "segment_list", "tracking_event_remove", "contact_list", "form_html", "tracking_site_status", "tracking_event_status", "tracking_whitelist", "tracking_log", "tracking_site_list", "tracking_event_list");
 			if (in_array($method, $string_responses)) {
 				return $response;
 			}
-			// something went wrong
-			return "An unexpected problem occurred with the API request. Some causes include: invalid JSON or XML returned. Here is the actual response from the server: ---- " . $response;
+
+			$requestException = new RequestException;
+			$requestException->setFailedMessage($response);
+			throw $requestException;
 		}
 
 		if ($this->debug) {
 			echo "<textarea style='height: 300px; width: 600px;'>" . $debug_str1 . "</textarea>";
 		}
 
-		header("HTTP/1.1 " . $http_code);
 		$object->http_code = $http_code;
 
 		if (isset($object->result_code)) {
@@ -222,5 +245,3 @@ class AC_Connector {
 	}
 
 }
-
-?>
