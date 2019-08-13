@@ -1,0 +1,51 @@
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+<script type="text/javascript">
+	var $ac = jQuery.noConflict();
+
+	function hide_stuff() {
+		// the paginator stuff (also Export, Search, etc)
+		$ac("#subscriptionsGrid .actions").hide();
+		$ac("#subscriptionsGrid .massaction").hide();
+
+		// the headings row
+		//$ac("#subscriptionsGrid_table tr.headings").hide();
+
+		// the filter row (right beneath the column headers)
+		$ac("#subscriptionsGrid_table tr.filter").hide();
+
+		// the first column of the table (the checkboxes)
+		$ac("#subscriptionsGrid_table td:nth-child(1),th:nth-child(1)").hide();
+
+		// the Lists column (we could not get the list output anyway)
+		$ac("#subscriptionsGrid_table td:nth-child(3),th:nth-child(3)").hide();
+
+		// hide the Action column (where the Edit button showed) - you can just click on the row
+		$ac("#subscriptionsGrid_table td:nth-child(5),th:nth-child(5)").hide();
+	}
+</script>
+<div class="content-header">
+	<table cellspacing="0">
+		<tr>
+			<td style="width:50%;">
+				<h3 class="icon-head" style="background-image: url(http://d226aj4ao1t61q.cloudfront.net/iiqh94zq_activecampaign.png); color: #2559A2;">
+					<?php echo Mage::helper('subscriptions')->__('ActiveCampaign Subscription Settings') ?>
+				</h3>
+			</td>
+			<td class="form-buttons"></td>
+		</tr>
+	</table>
+</div>
+<div>
+	<?php
+		//echo $this->getChildHtml('grid');
+		$grid_html = $this->getGridHtml();
+		echo $grid_html;
+	?>
+</div>
+<script type="text/javascript">
+	$ac(document).ready(function() {
+		hide_stuff();
+		$ac("#subscriptionsGrid_table").attr("style", "width: 600px;");
+	});
+</script>

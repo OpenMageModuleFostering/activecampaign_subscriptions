@@ -1,0 +1,16 @@
+{
+    "name": "OpenMageModuleFostering/ActiveCampaign_Subscriptions",
+    "type": "magento-module",
+    "license": "Commercial/Free",
+    "homepage": "",
+    "description": "Add Magento customers as ActiveCampaign subscribers with various sync options.",
+    "authors": [
+    {
+        "name": "ActiveCampaign, Inc.",
+        "email": "matt@activecampaign.com"
+    }
+],
+    "suggest": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}

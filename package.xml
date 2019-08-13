@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package>
+    <name>ActiveCampaign_Subscriptions</name>
+    <version>1.0.0</version>
+    <stability>stable</stability>
+    <license uri="https://www.activecampaign.com/hosted/terms.php">Commercial/Free</license>
+    <channel>community</channel>
+    <extends/>
+    <summary>Add Magento customers as ActiveCampaign subscribers with various sync options.</summary>
+    <description>1. Connect any ActiveCampaign hosted account (using your API URL and Key).&#xD;
+&#xD;
+2. Have new customer account registrations added to ActiveCampaign (if they opt-in to the Newsletter).&#xD;
+&#xD;
+3. Have existing customer account newsletter modifications updated in ActiveCampaign.&#xD;
+&#xD;
+4. Bulk export/sync all current newsletter subscribers to ActiveCampaign in just two clicks!</description>
+    <notes>First release</notes>
+    <authors><author><name>ActiveCampaign, Inc.</name><user>activecampaign</user><email>matt@activecampaign.com</email></author></authors>
+    <date>2012-11-12</date>
+    <time>17:17:17</time>
+    <contents><target name="magedesign"><dir name="adminhtml"><dir name="default"><dir name="default"><dir name="layout"><file name="subscriptions.xml" hash="18bfe6676477fc84b488277025d42568"/></dir><dir name="template"><dir name="subscriptions"><file name="grid.phtml" hash="5479475e2a96a006da97e35b31efeb02"/><file name="list.phtml" hash="d90e444079a30e2337df2cbcf10aa35f"/></dir></dir></dir></dir></dir><dir name="frontend"><dir name="default"><dir name="default"><dir name="layout"><file name="subscriptions.xml" hash="d0a96f68db976ce1919a664228184e9c"/></dir><dir name="template"><dir name="subscriptions"><file name="subscriptions.phtml" hash="2025758bce03d7b9cfe99029050c7be4"/></dir></dir></dir></dir></dir></target><target name="magelocal"><dir name="ActiveCampaign"><dir name="Subscriptions"><dir name="Block"><file name="Subscriptions.php" hash="ec632af3d623af970ba460de16eaa841"/><dir name="Adminhtml"><file name="Subscriptions.php" hash="c26f6255fa14a3a5b81828425041ec2c"/><dir name="Subscriptions"><file name="Edit.php" hash="3dba9bad67c86cea8d6bb9e40898d5fb"/><file name="Grid.php" hash="b51fc9698c21224488c41826489a8177"/><dir name="Edit"><file name="Form.php" hash="b1eda088b2adf03d69bc1aa3cfb2a00a"/><file name="Tabs.php" hash="19d7771dca320416c7c27e0d8f6c9f36"/><dir name="Tab"><file name="Connection.php" hash="230d5a8f70b5de930864b25821290efb"/><file name="Export.php" hash="f65aa906629d6a1b4a17f16014488017"/><file name="List.php" hash="bcde9bfb9254caa3774e9b5d4aa85e14"/></dir></dir></dir></dir></dir><dir name="controllers"><file name="IndexController.php" hash="f6e27a764745bdb55f17fdca49a7fa81"/><dir name="Adminhtml"><file name="SubscriptionsController.php" hash="ee5fb27c34ca707a35b8766455dc0283"/></dir></dir><dir name="etc"><file name="config.xml" hash="a3bacb007c725735eee61c9a2bae5475"/></dir><dir name="Helper"><file name="Data.php" hash="4b35d91431328ee595132df575a60a2a"/></dir><dir name="Model"><file name="Observer.php" hash="fce592221a9113aa5ae356da79b31a6e"/><file name="Status.php" hash="c35feda8164009341d289074be5612c0"/><file name="Subscriptions.php" hash="76818326ecfd635e574f704003184300"/><dir name="Mysql4"><file name="Subscriptions.php" hash="d112b3f1194a8bb7f329dacb34161941"/><dir name="Subscriptions"><file name="Collection.php" hash="457890390bd29e72dda81d3088ef5a50"/></dir></dir></dir><dir name="sql"><dir name="subscriptions_setup"><file name="mysql4-install-1.0.0.php" hash="11028fce8cd9cbf9cff09dd7575453dd"/></dir></dir></dir></dir></target></contents>
+    <compatible/>
+    <dependencies><required><php><min>5.1.0</min><max>6.0.0</max></php><extension><name>curl</name><min>7.19.7</min><max>7.28.0</max></extension></required></dependencies>
+</package>

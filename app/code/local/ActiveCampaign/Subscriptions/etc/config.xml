@@ -1,0 +1,156 @@
+<?xml version="1.0"?>
+<!-- 
+/**
+ * @category   ActiveCampaign
+ * @package    ActiveCampaign_Subscriptions
+ * @author     ActiveCampaign
+ * @license    https://www.activecampaign.com/hosted/terms.php
+ */
+ -->
+<config>
+    <modules>
+        <ActiveCampaign_Subscriptions>
+            <version>1.0.0</version>
+        </ActiveCampaign_Subscriptions>
+    </modules>
+    <frontend>
+        <routers>
+            <subscriptions>
+                <use>standard</use>
+                <args>
+                    <module>ActiveCampaign_Subscriptions</module>
+                    <frontName>subscriptions</frontName>
+                </args>
+            </subscriptions>
+        </routers>
+        <layout>
+            <updates>
+                <subscriptions>
+                    <file>subscriptions.xml</file>
+                </subscriptions>
+            </updates>
+        </layout>
+    </frontend>
+    <admin>
+        <routers>
+			<subscriptions>
+				<use>admin</use>
+				<args>
+					<module>ActiveCampaign_Subscriptions</module>
+					<frontName>subscriptions</frontName>
+				</args>
+			</subscriptions>
+        </routers>
+    </admin>
+    <adminhtml>
+		<menu>
+			<subscriptions module="subscriptions">
+				<title>ActiveCampaign</title>
+				<sort_order>71</sort_order>               
+				<children>
+					<items module="subscriptions">
+						<title>Settings</title>
+						<sort_order>0</sort_order>
+						<action>subscriptions/adminhtml_subscriptions</action>
+					</items>
+				</children>
+			</subscriptions>
+      <newsletter>
+        <children>
+          <subscriptions_adminform translate="title" module="subscriptions">
+            <title>ActiveCampaign Settings</title>
+            <action>subscriptions/adminhtml_subscriptions</action>
+          </subscriptions_adminform>
+        </children>
+      </newsletter>
+		</menu>
+		<acl>
+			<resources>
+				<all>
+					<title>Allow Everything</title>
+				</all>
+				<admin>
+					<children>
+						<ActiveCampaign_Subscriptions>
+							<title>Subscriptions Module</title>
+							<sort_order>10</sort_order>
+						</ActiveCampaign_Subscriptions>
+					</children>
+				</admin>
+			</resources>
+		</acl>
+		<layout>
+			<updates>
+				<subscriptions>
+					<file>subscriptions.xml</file>
+				</subscriptions>
+			</updates>
+		</layout>
+    </adminhtml>   
+    <global>
+        <models>
+            <subscriptions>
+                <class>ActiveCampaign_Subscriptions_Model</class>
+                <resourceModel>subscriptions_mysql4</resourceModel>
+            </subscriptions>
+            <subscriptions_mysql4>
+                <class>ActiveCampaign_Subscriptions_Model_Mysql4</class>
+                <entities>
+                    <subscriptions>
+                        <table>subscriptions</table>
+                    </subscriptions>
+                </entities>
+            </subscriptions_mysql4>
+        </models>
+		    <events>
+		      <customer_register_success>
+		        <observers>
+		          <subscriptions>
+		            <class>subscriptions/observer</class>
+		            <method>register_subscribe</method>
+		            <type>singleton</type>
+		          </subscriptions>
+		        </observers>
+		      </customer_register_success>
+          <customer_save_after>
+            <observers>
+              <subscriptions>
+                <class>subscriptions/observer</class>
+                <method>edit_subscribe</method>
+                <type>singleton</type>
+              </subscriptions>
+            </observers>
+          </customer_save_after>
+		    </events>
+        <resources>
+            <subscriptions_setup>
+                <setup>
+                    <module>ActiveCampaign_Subscriptions</module>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </subscriptions_setup>
+            <subscriptions_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </subscriptions_write>
+            <subscriptions_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </subscriptions_read>
+        </resources>
+        <blocks>
+            <subscriptions>
+                <class>ActiveCampaign_Subscriptions_Block</class>
+            </subscriptions>
+        </blocks>
+        <helpers>
+            <subscriptions>
+                <class>ActiveCampaign_Subscriptions_Helper</class>
+            </subscriptions>
+        </helpers>
+    </global>
+</config>
