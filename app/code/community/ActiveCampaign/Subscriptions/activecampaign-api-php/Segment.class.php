@@ -1,6 +1,6 @@
 <?php
 
-class AC_Auth extends ActiveCampaign {
+class AC_Segment extends ActiveCampaign {
 
 	public $version;
 	public $url_base;
@@ -14,9 +14,10 @@ class AC_Auth extends ActiveCampaign {
 		$this->api_key = $api_key;
 	}
 
-	function singlesignon($params) {
-		$request_url = "{$this->url}&api_action=singlesignon&api_output={$this->output}&{$params}";
-		$response = $this->curl($request_url);
+	function list_($params) {
+		// version 2 only
+		$request_url = "{$this->url_base}/segment/list";
+		$response = $this->curl($request_url, $params, "GET", "segment_list");
 		return $response;
 	}
 

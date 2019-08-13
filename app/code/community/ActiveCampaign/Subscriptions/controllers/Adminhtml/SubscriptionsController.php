@@ -142,12 +142,22 @@ class ActiveCampaign_Subscriptions_Adminhtml_SubscriptionsController extends Mag
 
 				if (isset($data["export_confirm"]) && (int)$data["export_confirm"]) {
 
-					// exporting Newsletter subscribers to ActiveCampaign
+					// exporting Newsletter contacts to ActiveCampaign
 
-					$subscribers_magento = Mage::getResourceModel('newsletter/subscriber_collection')->showStoreInfo()->showCustomerInfo()->getData();
-//$this->dbg($subscribers_magento);
+					// Try a couple different ways to get the contact data.
+					// Some versions of Magento may only support one way or another.
+					$contacts_magento = Mage::getResourceModel('newsletter/contact_collection');
+					if ($contacts_magento) {
+						$contacts_magento = $contacts_magento->showStoreInfo()->showCustomerInfo()->getData();
+					}
+					if (!$contacts_magento) {
+						$contacts_magento = Mage::getModel('newsletter/subscriber')->getCollection()->getData();
+					}
+					if (!$contacts_magento) {
+						$contacts_magento = Mage::getModel('newsletter/subscriber')->getCollection()->showCustomerInfo()->getData();
+					}
 
-					$subscribers_ac = array();
+					$contacts_ac = array();
 
 					foreach ($list_values as $acct_listid) {
 						// IE: mthommes6.activehosted.com-13
@@ -155,12 +165,12 @@ class ActiveCampaign_Subscriptions_Adminhtml_SubscriptionsController extends Mag
 						$list_ids[] = (int)$acct_listid[1];
 					}
 
-					foreach ($subscribers_magento as $subscriber) {
+					foreach ($contacts_magento as $contact) {
 
-						$subscribers_ac_ = array(
-							"email" => $subscriber["subscriber_email"],
-							"first_name" => $subscriber["customer_firstname"],
-							"last_name" => $subscriber["customer_lastname"],
+						$contacts_ac_ = array(
+							"email" => $contact["subscriber_email"],
+							"first_name" => $contact["subscriber_firstname"],
+							"last_name" => $contact["subscriber_lastname"],
 						);
 
 						// add lists
@@ -171,32 +181,18 @@ class ActiveCampaign_Subscriptions_Adminhtml_SubscriptionsController extends Mag
 							$status[$list_id] = 1;
 						}
 
-						$subscribers_ac_["p"] = $p;
-						$subscribers_ac_["status"] = $status;
+						$contacts_ac_["p"] = $p;
+						$contacts_ac_["status"] = $status;
 
-//$this->dbg($subscribers_ac_);
+//$this->dbg($contacts_ac_);
 
-						$subscribers_ac[] = $subscribers_ac_;
+						$contacts_ac[] = $contacts_ac_;
 
 					}
 
-//$this->dbg($subscribers_ac);
+					$contacts_ac_serialized = serialize($contacts_ac);
 
-					$subscribers_ac_serialized = serialize($subscribers_ac);
-//$this->dbg($subscribers_ac_serialized);
-
-					$subscriber_request = $ac->api("subscriber/sync?service=magento", $subscribers_ac_serialized);
-//$this->dbg($subscriber_request);
-
-					if ((int)$subscriber_request->success) {
-						// successful request
-						//$subscriber_id = (int)$subscriber_request->subscriber_id;
-					}
-					else {
-						// request failed
-						//print_r($subscriber_request->error);
-						//exit();
-					}
+					$contact_request = $ac->api("contact/sync?service=magento", $contacts_ac_serialized);
 
 				}
 

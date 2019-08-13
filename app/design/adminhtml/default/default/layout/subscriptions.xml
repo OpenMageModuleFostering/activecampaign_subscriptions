@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<layout version="0.1.0">
-    <subscriptions_adminhtml_subscriptions_index>
+<layout>
+    <adminhtml_subscriptions_index>
         <reference name="content">
             <block type="subscriptions/adminhtml_subscriptions" name="subscriptions" template="subscriptions/list.phtml">
               <block type="subscriptions/adminhtml_subscriptions" name="grid" template="subscriptions/grid.phtml" />
             </block>
         </reference>
-    </subscriptions_adminhtml_subscriptions_index>
+    </adminhtml_subscriptions_index>
 </layout>

@@ -1,6 +1,6 @@
 <?php
 
-class AC_Auth extends ActiveCampaign {
+class AC_Tag extends ActiveCampaign {
 
 	public $version;
 	public $url_base;
@@ -14,8 +14,8 @@ class AC_Auth extends ActiveCampaign {
 		$this->api_key = $api_key;
 	}
 
-	function singlesignon($params) {
-		$request_url = "{$this->url}&api_action=singlesignon&api_output={$this->output}&{$params}";
+	function list_($params) {
+		$request_url = "{$this->url}&api_action=tags_list&api_output={$this->output}&{$params}";
 		$response = $this->curl($request_url);
 		return $response;
 	}

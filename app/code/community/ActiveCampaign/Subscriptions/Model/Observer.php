@@ -106,7 +106,7 @@ protected function file_append($content) {
 
 				if ($test_connection) {
 
-					$subscriber = array(
+					$contact = array(
 						"email" => $customer_email,
 						"first_name" => $customer_first_name,
 						"last_name" => $customer_last_name,
@@ -114,21 +114,21 @@ protected function file_append($content) {
 
 					// add lists
 					foreach ($connection["list_ids"] as $list_id) {
-						$subscriber["p[{$list_id}]"] = $list_id;
-						$subscriber["status[{$list_id}]"] = 1;
+						$contact["p[{$list_id}]"] = $list_id;
+						$contact["status[{$list_id}]"] = 1;
 					}
 
-					$subscriber["form"] = $connection["form_id"];
+					$contact["form"] = $connection["form_id"];
 
-					$subscriber_request = $ac->api("subscriber/sync?service=magento", $subscriber);
+					$contact_request = $ac->api("contact/sync?service=magento", $contact);
 
-					if ((int)$subscriber_request->success) {
+					if ((int)$contact_request->success) {
 						// successful request
-						//$subscriber_id = (int)$subscriber_request->subscriber_id;
+						//$contact_id = (int)$contact_request->contact_id;
 					}
 					else {
 						// request failed
-						//print_r($subscriber_request->error);
+						//print_r($contact_request->error);
 						//exit();
 					}
 				}
@@ -161,38 +161,38 @@ protected function file_append($content) {
 
 		if ($connection["api_url"] && $connection["api_key"] && $connection["list_ids"]) {
 
-				$ac = new ActiveCampaign($connection["api_url"], $connection["api_key"]);
-				$test_connection = $ac->credentials_test();
+			$ac = new ActiveCampaign($connection["api_url"], $connection["api_key"]);
+			$test_connection = $ac->credentials_test();
 
-				if ($test_connection) {
+			if ($test_connection) {
 
-					$subscriber = array(
-						"email" => $customer_email,
-						"first_name" => $customer_first_name,
-						"last_name" => $customer_last_name,
-					);
+				$contact = array(
+					"email" => $customer_email,
+					"first_name" => $customer_first_name,
+					"last_name" => $customer_last_name,
+				);
 
-					// add lists
-					foreach ($connection["list_ids"] as $list_id) {
-						$subscriber["p[{$list_id}]"] = $list_id;
-						$subscriber["status[{$list_id}]"] = $list_status;
-					}
-
-					$subscriber["form"] = $connection["form_id"];
-
-					$subscriber_request = $ac->api("subscriber/sync?service=magento", $subscriber);
-
-					if ((int)$subscriber_request->success) {
-						// successful request
-						//$subscriber_id = (int)$subscriber_request->subscriber_id;
-					}
-					else {
-						// request failed
-						//print_r($subscriber_request->error);
-						//exit();
-					}
-
+				// add lists
+				foreach ($connection["list_ids"] as $list_id) {
+					$contact["p[{$list_id}]"] = $list_id;
+					$contact["status[{$list_id}]"] = $list_status;
 				}
+
+				$contact["form"] = $connection["form_id"];
+
+				$contact_request = $ac->api("contact/sync?service=magento", $contact);
+
+				if ((int)$contact_request->success) {
+					// successful request
+					//$contact_id = (int)$contact_request->contact_id;
+				}
+				else {
+					// request failed
+					//print_r($contact_request->error);
+					//exit();
+				}
+
+			}
 
 		}
 

@@ -3,7 +3,7 @@
     "type": "magento-module",
     "license": "Commercial/Free",
     "homepage": "",
-    "description": "Add Magento customers as ActiveCampaign subscribers with various sync options.",
+    "description": "Add Magento customers as ActiveCampaign contacts with various sync options.",
     "authors": [
     {
         "name": "ActiveCampaign, Inc.",

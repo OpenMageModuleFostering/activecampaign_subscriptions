@@ -2,10 +2,14 @@
 
 class AC_Form extends ActiveCampaign {
 
+	public $version;
+	public $url_base;
 	public $url;
 	public $api_key;
 
-	function __construct($url, $api_key) {
+	function __construct($version, $url_base, $url, $api_key) {
+		$this->version = $version;
+		$this->url_base = $url_base;
 		$this->url = $url;
 		$this->api_key = $api_key;
 	}
@@ -83,31 +87,48 @@ class AC_Form extends ActiveCampaign {
 				// if using Ajax, remove the <form> action attribute completely
 				$html = preg_replace("/action=['\"][^'\"]+['\"]/", "", $html);
 
+				// replace the Submit button to be a button type (for ajax).
+				// forms come out of AC now with a "submit" button (it used to be "button").
+				$html = preg_replace("/class=['\"]+_submit['\"]+ type=['\"]+submit['\"]+/", "class='_submit' type='button'", $html);
+
+				// Replace the external image (captcha) script with the local one, so the session var is accessible.
+				$html = preg_replace("/\/\/.*\/ac_global\/scripts\/randomimage\.php/i", "randomimage.php", $html);
+
+				// Remove Embedded forms JS
+				$html = preg_replace('/<script[^>]*>.*?<\/script>/s', '', $html);
+
 				$action_val = urldecode($action_val);
 
 				// add jQuery stuff
 				$extra = "<script type='text/javascript'>
 
-$(document).ready(function() {
+var \$j = jQuery.noConflict();
 
-	$('input[type*=\"button\"]').click(function() {
+\$j(document).ready(function() {
+
+	\$j('#_form_{$id}_ button').click(function() {
+
+		// rename the radio options for Subscribe/Unsubscribe, since they conflict with the hidden field.
+		\$j('input[type=radio][name=act]').attr('name','act_radio');
 
 		var form_data = {};
-		$('form').each(function() {
-			form_data = $(this).serialize();
+		\$j('#_form_{$id}_').each(function() {
+			form_data = \$j(this).serialize();
 		});
 
 		var geturl;
-		geturl = $.ajax({
+		geturl = \$j.ajax({
 			url: '{$action_val}',
 			type: 'POST',
 			dataType: 'json',
 			data: form_data,
 			error: function(jqXHR, textStatus, errorThrown) {
-				alert('Error: ' + textStatus);
+				console.log(errorThrown);
 			},
 			success: function(data) {
-				$('#form_result_message').html(data.message);
+				\$j('#form_result_message').html(data.message);
+				var result_class = (data.success) ? 'form_result_success' : 'form_result_error';
+				\$j('#form_result_message').removeClass('form_result_success form_result_error').addClass(result_class);
 			}
 		});
 
@@ -126,11 +147,11 @@ $(document).ready(function() {
 	}
 
 	function process($params) {
-
 		$r = array();
 		if ($_SERVER["REQUEST_METHOD"] != "POST") return $r;
 
 		$sync = 0;
+		$captcha_in_form = 0;
 		if ($params) {
 			$params_array = explode("&", $params);
 			$params_ = array();
@@ -141,81 +162,105 @@ $(document).ready(function() {
 			}
 
 			$sync = (isset($params_["sync"])) ? (int)$params_["sync"] : 0;
+			$captcha_in_form = (isset($params_["captcha"])) ? (int)$params_["captcha"] : 0;
 		}
 
 		$formid = $_POST["f"];
+		// sub or unsub
+		$act = isset($_POST["act"]) ? $_POST["act"] : "sub";
+		if (isset($_POST["act_radio"])) {
+			// the radio options for Subscribe/Unsubscribe.
+			$act = $_POST["act_radio"];
+		}
 		$email = $_POST["email"];
+		$firstname = $lastname = "";
+		$phone = isset($_POST["phone"]) ? $_POST["phone"] : "";
+		$lists = (isset($_POST["nlbox"]) && $_POST["nlbox"]) ? $_POST["nlbox"] : array();
+		if ($captcha_in_form) {
+			// Captcha is part of the form.
+			// Get the captcha value the user entered.
+			$captcha = "";
+			if (isset($_POST["captcha"])) {
+				$captcha = md5(strtoupper((string)$_POST["captcha"]));
+			}
+			if (!isset($_SESSION["image_random_value"]) || !isset($_SESSION["image_random_value"][$captcha])) {
+				return json_encode(array("success" => 0, "message" => "Invalid captcha"));
+			}
+		}
 
 		if (isset($_POST["fullname"])) {
 			$fullname = explode(" ", $_POST["fullname"]);
 			$firstname = array_shift($fullname);
 			$lastname = implode(" ", $fullname);
 		}
-		else {
+		elseif (isset($_POST["firstname"]) && isset($_POST["lastname"])) {
 			$firstname = trim($_POST["firstname"]);
 			$lastname = trim($_POST["lastname"]);
-			if ($firstname == "") $firstname = trim($_POST["first_name"]);
-			if ($lastname == "") $lastname = trim($_POST["last_name"]);
+			if ($firstname == "" && isset($_POST["first_name"])) $firstname = trim($_POST["first_name"]);
+			if ($lastname == "" && isset($_POST["last_name"])) $lastname = trim($_POST["last_name"]);
 		}
 
 		$fields = (isset($_POST["field"])) ? $_POST["field"] : array();
 
-		$subscriber = array(
+		$contact = array(
 			"form" => $formid,
 			"email" => $email,
 			"first_name" => $firstname,
 			"last_name" => $lastname,
+			"phone" => $phone,
 		);
 
 		foreach ($fields as $ac_field_id => $field_value) {
-			$subscriber["field"][$ac_field_id . ",0"] = $field_value;
+			$contact["field"][$ac_field_id . ",0"] = $field_value;
 		}
 
 		// add lists
-		foreach ($_POST["nlbox"] as $listid) {
-			$subscriber["p[{$listid}]"] = $listid;
-			$subscriber["status[{$listid}]"] = 1;
+		$status = ($act == "unsub") ? 2 : 1;
+		foreach ($lists as $listid) {
+			$contact["p[{$listid}]"] = $listid;
+			$contact["status[{$listid}]"] = $status;
+			$contact["instantresponders[{$listid}]"] = 1;
 		}
 
 		if (!$sync) {
 
 			// do add/edit
 
-			$subscriber_exists = $this->api("subscriber/view?email={$email}", $subscriber);
+			$contact_exists = $this->api("contact/view?email={$email}", $contact);
 
-			if ( !isset($subscriber_exists->id) ) {
+			if ( !isset($contact_exists->id) ) {
 
-				// subscriber does not exist - add them
+				// contact does not exist - add them
 
-				$subscriber_request = $this->api("subscriber/add", $subscriber);
+				$contact_request = $this->api("contact/add", $contact);
 
-				if ((int)$subscriber_request->success) {
+				if ((int)$contact_request->success) {
 					// successful request
-					$subscriber_id = (int)$subscriber_request->subscriber_id;
+					$contact_id = (int)$contact_request->subscriber_id;
 					$r = array(
 						"success" => 1,
-						"message" => $subscriber_request->result_message,
-						"subscriber_id" => $subscriber_id,
+						"message" => $contact_request->result_message,
+						"contact_id" => $contact_id,
 					);
 				}
 				else {
 					// request failed
 					$r = array(
 						"success" => 0,
-						"message" => $subscriber_request->error,
+						"message" => $contact_request->error,
 					);
 				}
 
 			}
 			else {
 
-				// subscriber already exists - edit them
+				// contact already exists - edit them
 
-				$subscriber_id = $subscriber_exists->id;
+				$contact_id = $contact_exists->id;
 
-				$subscriber["id"] = $subscriber_id;
+				$contact["id"] = $contact_id;
 
-				$subscriber_request = $this->api("subscriber/edit?overwrite=0", $subscriber);
+				$contact_request = $this->api("contact/edit?overwrite=0", $contact);
 
 			}
 
@@ -224,24 +269,24 @@ $(document).ready(function() {
 
 			// perform sync (add or edit)
 
-			$subscriber_request = $this->api("subscriber/sync", $subscriber);
+			$contact_request = $this->api("contact/sync", $contact);
 
 		}
 
-		if ((int)$subscriber_request->success) {
+		if ((int)$contact_request->success) {
 			// successful request
-			//$subscriber_id = (int)$subscriber_request->subscriber_id;
+			//$contact_id = (int)$contact_request->contact_id;
 			$r = array(
 				"success" => 1,
-				"message" => $subscriber_request->result_message,
-				//"subscriber_id" => $subscriber_id,
+				"message" => $contact_request->result_message,
+				//"contact_id" => $contact_id,
 			);
 		}
 		else {
 			// request failed
 			$r = array(
 				"success" => 0,
-				"message" => $subscriber_request->error,
+				"message" => $contact_request->error,
 			);
 		}
 

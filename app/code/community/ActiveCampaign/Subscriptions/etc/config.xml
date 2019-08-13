@@ -32,15 +32,15 @@
         </layout>
     </frontend>
     <admin>
-        <routers>
-			<subscriptions>
-				<use>admin</use>
-				<args>
-					<module>ActiveCampaign_Subscriptions</module>
-					<frontName>subscriptions</frontName>
-				</args>
-			</subscriptions>
-        </routers>
+			<routers>
+				<adminhtml>
+					<args>
+						<modules>
+							<subscriptions after="Mage_Adminhtml">ActiveCampaign_Subscriptions_Adminhtml</subscriptions>
+						</modules>
+					</args>
+				</adminhtml>
+			</routers>
     </admin>
     <adminhtml>
 		<menu>
@@ -51,7 +51,7 @@
 					<items module="subscriptions">
 						<title>Settings</title>
 						<sort_order>0</sort_order>
-						<action>subscriptions/adminhtml_subscriptions</action>
+						<action>adminhtml/subscriptions</action>
 					</items>
 				</children>
 			</subscriptions>
@@ -59,7 +59,7 @@
         <children>
           <subscriptions_adminform translate="title" module="subscriptions">
             <title>ActiveCampaign Settings</title>
-            <action>subscriptions/adminhtml_subscriptions</action>
+            <action>adminhtml/subscriptions</action>
           </subscriptions_adminform>
         </children>
       </newsletter>
