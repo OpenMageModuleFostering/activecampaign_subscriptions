@@ -16,6 +16,7 @@ class ActiveCampaign extends AC_Connector {
 	public $track_key;
 	public $version = 1;
 	public $debug = false;
+	public $curl_response_error = "";
 
 	function __construct($url, $api_key, $api_user = "", $api_pass = "") {
 		$this->url_base = $this->url = $url;
@@ -85,6 +86,9 @@ class ActiveCampaign extends AC_Connector {
 
 		$add_tracking = false;
 		if ($class == "AC_Tracking") $add_tracking = true;
+		if ($class == "AC_Tags") {
+			$class = "AC_Tag";
+		}
 
 		$class = new $class($this->version, $this->url_base, $this->url, $this->api_key);
 		// IE: $contact->view()
@@ -119,8 +123,10 @@ require_once("Form.class.php");
 require_once("Group.class.php");
 require_once("List.class.php");
 require_once("Message.class.php");
+require_once("Segment.class.php");
 require_once("Settings.class.php");
 require_once("Subscriber.class.php");
+require_once("Tag.class.php");
 require_once("Tracking.class.php");
 require_once("User.class.php");
 require_once("Webhook.class.php");

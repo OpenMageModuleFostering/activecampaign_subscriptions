@@ -28,11 +28,6 @@ class AC_Connector {
 		$this->api_key = $api_key;
 	}
 
-	/**
-	 * @return  boolean  Whether or not the API credentials are valid.
-	 *
-	 * Tests the API URL and key using the user_me API method.
-	 */
 	public function credentials_test() {
 		$test_url = "{$this->url}&api_action=user_me&api_output={$this->output}";
 		$r = $this->curl($test_url);
@@ -47,9 +42,7 @@ class AC_Connector {
 		return $r;
 	}
 
-	/**
-	 * Standard debug function (nicely outputs variables).
-	 */
+	// debug function (nicely outputs variables)
 	public function dbg($var, $continue = 0, $element = "pre", $extra = "") {
 	  echo "<" . $element . ">";
 	  echo "Vartype: " . gettype($var) . "\n";
@@ -64,13 +57,6 @@ class AC_Connector {
 		if (!$continue) exit();
 	}
 
-	/**
-	 * @param  string  url            The API URL with the relevant method params.
-	 * @param  array   params_data    The GET or POST parameters (keys and values).
-	 * @param  string  verb           The HTTP verb (GET, POST, DELETE, etc).
-	 * @param  string  custom_method  Any custom method that gets handled differently (such as how we process the response).
-	 * @return object                 The response object from the curl request.
-	 */
 	public function curl($url, $params_data = array(), $verb = "", $custom_method = "") {
 		if ($this->version == 1) {
 			// find the method from the URL.
@@ -161,14 +147,14 @@ class AC_Connector {
 						$data .= "{$key}=" . urlencode($value) . "&";
 					}
 				}
-				$data = rtrim($data, "& ");
 			}
 			else {
-				// Pass it as an array into the curl request.
-				// This avoids any issue where the transfer might get chunked or broken up due to a large post string/body.
-				$data = array("data" => $params_data);
+				// not an array - perhaps serialized or JSON string?
+				// just pass it as data
+				$data = "data={$params_data}";
 			}
 
+			$data = rtrim($data, "& ");
 			curl_setopt($request, CURLOPT_HTTPHEADER, array("Expect:"));
 			$debug_str1 .= "curl_setopt(\$ch, CURLOPT_HTTPHEADER, array(\"Expect:\"));\n";
 			if ($this->debug) {
@@ -217,9 +203,9 @@ class AC_Connector {
 				return $response;
 			}
 
-			/*$requestException = new RequestException;
+			$requestException = new RequestException;
 			$requestException->setFailedMessage($response);
-			throw $requestException;*/
+			throw $requestException;
 		}
 
 		if ($this->debug) {
