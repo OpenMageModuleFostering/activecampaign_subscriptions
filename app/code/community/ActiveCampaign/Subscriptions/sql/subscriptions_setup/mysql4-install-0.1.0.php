@@ -23,8 +23,10 @@ CREATE TABLE {$this->getTable('subscriptions')} (
   `api_url` varchar(50) NOT NULL default '',
   `api_key` varchar(75) NOT NULL default '',
   `account_url` varchar(50) NOT NULL default '',
-  `list_value` varchar(100) NULL,
+  `list_value` text NULL,
   `lists` text NULL,
+  `form_value` text NULL,
+  `forms` text NULL,
   `status` smallint(6) NOT NULL default '0',
   `cdate` datetime NULL,
   PRIMARY KEY (`subscriptions_id`)

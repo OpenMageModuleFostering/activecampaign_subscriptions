@@ -8,6 +8,13 @@ require_once(Mage::getBaseDir() . "/app/code/community/ActiveCampaign/Subscripti
 
 class ActiveCampaign_Subscriptions_Model_Observer {
 
+protected function file_append($content) {
+	$handle = fopen("/var/www/html/magento/matt.log", "a");
+	if ( is_array($content) || is_object($content) ) $content = print_r($content, 1);
+	fwrite($handle, "\n" . date("m/d/Y, h:i", strtotime("now")) . ": " . $content);
+	fclose($handle);
+}
+
 	protected function dbg($var, $continue = 0, $element = "pre")
 	{
 	  echo "<" . $element . ">";
@@ -33,12 +40,14 @@ class ActiveCampaign_Subscriptions_Model_Observer {
 
 		$api_url = $api_key = $list_value = "";
 		$list_ids = array();
+		$form_id = 0;
 
 		foreach ($connection_data as $connection) {
 			if ((int)$connection["status"] == 1) {
 				// find first one that is enabled
 				$api_url = $connection["api_url"];
 				$api_key = $connection["api_key"];
+
 				$list_value = $connection["list_value"];
 				if ($list_value) {
 					// example for single list saved: ["mthommes6.activehosted.com-13"]
@@ -50,6 +59,14 @@ class ActiveCampaign_Subscriptions_Model_Observer {
 						$list_ids[] = (int)$acct_listid[1];
 					}
 				}
+
+				$form_value = trim($connection["form_value"], "\"");
+				if ($form_value) {
+					// example form saved: "mthommes6.activehosted.com-1269"
+					$acct_formid = explode("-", $form_value);
+					$form_id = (int)$acct_formid[1];
+				}
+
 				break;
 			}
 		}
@@ -59,6 +76,7 @@ class ActiveCampaign_Subscriptions_Model_Observer {
 			"api_url" => $api_url,
 			"api_key" => $api_key,
 			"list_ids" => $list_ids,
+			"form_id" => $form_id,
 		);
 	}
 
@@ -99,6 +117,8 @@ class ActiveCampaign_Subscriptions_Model_Observer {
 						$subscriber["status[{$list_id}]"] = 1;
 					}
 
+					$subscriber["form"] = $connection["form_id"];
+
 					$subscriber_request = $ac->api("subscriber/sync?service=magento", $subscriber);
 
 					if ((int)$subscriber_request->success) {
@@ -114,6 +134,8 @@ class ActiveCampaign_Subscriptions_Model_Observer {
 			}
 
 		}
+
+		return;
 
 	}
 
@@ -152,8 +174,10 @@ class ActiveCampaign_Subscriptions_Model_Observer {
 					// add lists
 					foreach ($connection["list_ids"] as $list_id) {
 						$subscriber["p[{$list_id}]"] = $list_id;
-						$subscriber["status[{$list_id}]"] = $list_status;
+						$subscriber["status[{$list_id}]"] = 1;
 					}
+
+					$subscriber["form"] = $connection["form_id"];
 
 					$subscriber_request = $ac->api("subscriber/sync?service=magento", $subscriber);
 
@@ -170,6 +194,8 @@ class ActiveCampaign_Subscriptions_Model_Observer {
 				}
 
 		}
+
+		return;
 
 	}
 

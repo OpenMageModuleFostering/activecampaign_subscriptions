@@ -134,6 +134,7 @@ class ActiveCampaign_Subscriptions_Adminhtml_SubscriptionsController extends Mag
 
 				// example (converts to): ["mthommes6.activehosted.com-5","mthommes6.activehosted.com-13"]
 				$data["list_value"] = json_encode($data["list_value"]);
+				$data["form_value"] = json_encode($data["form_value"]);
 
 //$this->dbg($data);
 

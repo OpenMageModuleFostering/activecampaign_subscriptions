@@ -25,6 +25,12 @@ class ActiveCampaign_Subscriptions_Block_Adminhtml_Subscriptions_Edit_Tabs exten
           'content'   => $this->getLayout()->createBlock('subscriptions/adminhtml_subscriptions_edit_tab_list')->toHtml(),
       ));
 
+      $this->addTab('form_section_forms', array(
+          'label'     => Mage::helper('subscriptions')->__('Forms'),
+          'title'     => Mage::helper('subscriptions')->__('Forms'),
+          'content'   => $this->getLayout()->createBlock('subscriptions/adminhtml_subscriptions_edit_tab_form')->toHtml(),
+      ));
+
       $this->addTab('form_section_export', array(
           'label'     => Mage::helper('subscriptions')->__('Export Magento Subscribers'),
           'title'     => Mage::helper('subscriptions')->__('Export Magento Subscribers'),

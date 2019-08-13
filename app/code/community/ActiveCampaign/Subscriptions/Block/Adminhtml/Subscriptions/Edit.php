@@ -11,7 +11,12 @@ class ActiveCampaign_Subscriptions_Block_Adminhtml_Subscriptions_Edit extends Ma
         $this->_controller = 'adminhtml_subscriptions';
 
         $this->_updateButton('save', 'label', Mage::helper('subscriptions')->__('Save Connection'));
+
         $this->_updateButton('delete', 'label', Mage::helper('subscriptions')->__('Delete Connection'));
+
+        // hide these buttons
+        $this->_updateButton('delete', 'style', 'display: none;');
+        $this->_updateButton('reset', 'style', 'display: none;');
 
         $this->_addButton('saveandcontinue', array(
             'label'     => Mage::helper('adminhtml')->__('Save And Continue Edit'),

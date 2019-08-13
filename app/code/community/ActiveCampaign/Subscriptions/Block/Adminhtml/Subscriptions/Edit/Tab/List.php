@@ -23,7 +23,7 @@ class ActiveCampaign_Subscriptions_Block_Adminhtml_Subscriptions_Edit_Tab_List e
   {
       $form = new Varien_Data_Form();
       $this->setForm($form);
-      $fieldset = $form->addFieldset('subscriptions_form', array('legend'=>Mage::helper('subscriptions')->__('Choose Lists')));
+      $fieldset = $form->addFieldset('subscriptions_form', array('legend'=>Mage::helper('subscriptions')->__('Choose Lists (To add new customers to)')));
 
 			$connection = Mage::registry('subscriptions_data')->getData();
 //$this->dbg($connection,1);

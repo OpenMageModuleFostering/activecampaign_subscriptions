@@ -7,16 +7,15 @@ require_once(Mage::getBaseDir() . "/app/code/community/ActiveCampaign/Subscripti
 class ActiveCampaign_Subscriptions_Block_Subscriptions extends Mage_Core_Block_Template
 {
 	public function _prepareLayout()
-    {
+  {
 		return parent::_prepareLayout();
-    }
+	}
 
-     public function getSubscriptions()
-     {
-        if (!$this->hasData('subscriptions')) {
-            $this->setData('subscriptions', Mage::registry('subscriptions'));
-        }
-        return $this->getData('subscriptions');
-
-    }
+	public function getSubscriptions()
+	{
+		if (!$this->hasData('subscriptions')) {
+			$this->setData('subscriptions', Mage::registry('subscriptions'));
+		}
+    return $this->getData('subscriptions');
+	}
 }

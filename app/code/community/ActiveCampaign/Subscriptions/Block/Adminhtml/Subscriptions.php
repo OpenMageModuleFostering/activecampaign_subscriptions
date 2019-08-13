@@ -1,4 +1,5 @@
 <?php
+
 class ActiveCampaign_Subscriptions_Block_Adminhtml_Subscriptions extends Mage_Adminhtml_Block_Widget_Grid_Container
 {
   public function __construct()
