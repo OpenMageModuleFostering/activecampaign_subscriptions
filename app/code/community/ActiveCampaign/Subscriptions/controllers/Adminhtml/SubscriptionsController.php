@@ -2,7 +2,7 @@
 
 define("ACTIVECAMPAIGN_URL", "");
 define("ACTIVECAMPAIGN_API_KEY", "");
-require_once(Mage::getBaseDir() . "/app/code/local/ActiveCampaign/Subscriptions/activecampaign-api-php/ActiveCampaign.class.php");
+require_once(Mage::getBaseDir() . "/app/code/community/ActiveCampaign/Subscriptions/activecampaign-api-php/ActiveCampaign.class.php");
 
 class ActiveCampaign_Subscriptions_Adminhtml_SubscriptionsController extends Mage_Adminhtml_Controller_action
 {

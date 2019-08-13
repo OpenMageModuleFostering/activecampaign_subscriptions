@@ -2,7 +2,7 @@
 
 define("ACTIVECAMPAIGN_URL", "");
 define("ACTIVECAMPAIGN_API_KEY", "");
-require_once(Mage::getBaseDir() . "/app/code/local/ActiveCampaign/Subscriptions/activecampaign-api-php/ActiveCampaign.class.php");
+require_once(Mage::getBaseDir() . "/app/code/community/ActiveCampaign/Subscriptions/activecampaign-api-php/ActiveCampaign.class.php");
 
 class ActiveCampaign_Subscriptions_Block_Subscriptions extends Mage_Core_Block_Template
 {
