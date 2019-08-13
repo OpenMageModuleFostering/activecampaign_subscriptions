@@ -217,9 +217,9 @@ class AC_Connector {
 				return $response;
 			}
 
-			$requestException = new RequestException;
+			/*$requestException = new RequestException;
 			$requestException->setFailedMessage($response);
-			throw $requestException;
+			throw $requestException;*/
 		}
 
 		if ($this->debug) {

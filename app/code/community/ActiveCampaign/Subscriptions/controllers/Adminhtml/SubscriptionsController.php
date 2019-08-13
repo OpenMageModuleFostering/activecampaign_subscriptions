@@ -149,8 +149,12 @@ class ActiveCampaign_Subscriptions_Adminhtml_SubscriptionsController extends Mag
 					$contacts_magento = Mage::getResourceModel('newsletter/contact_collection');
 					if ($contacts_magento) {
 						$contacts_magento = $contacts_magento->showStoreInfo()->showCustomerInfo()->getData();
-					} else {
+					}
+					if (!$contacts_magento) {
 						$contacts_magento = Mage::getModel('newsletter/subscriber')->getCollection()->getData();
+					}
+					if (!$contacts_magento) {
+						$contacts_magento = Mage::getModel('newsletter/subscriber')->getCollection()->showCustomerInfo()->getData();
 					}
 
 					$contacts_ac = array();
@@ -164,9 +168,9 @@ class ActiveCampaign_Subscriptions_Adminhtml_SubscriptionsController extends Mag
 					foreach ($contacts_magento as $contact) {
 
 						$contacts_ac_ = array(
-							"email" => $contact["contact_email"],
-							"first_name" => $contact["customer_firstname"],
-							"last_name" => $contact["customer_lastname"],
+							"email" => $contact["subscriber_email"],
+							"first_name" => $contact["subscriber_firstname"],
+							"last_name" => $contact["subscriber_lastname"],
 						);
 
 						// add lists
@@ -185,8 +189,6 @@ class ActiveCampaign_Subscriptions_Adminhtml_SubscriptionsController extends Mag
 						$contacts_ac[] = $contacts_ac_;
 
 					}
-
-//$this->dbg($contacts_ac);
 
 					$contacts_ac_serialized = serialize($contacts_ac);
 
